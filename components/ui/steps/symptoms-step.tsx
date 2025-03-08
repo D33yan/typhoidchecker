@@ -58,7 +58,7 @@ const SymptomsStep = ({ selectedSymptoms, setSelectedSymptoms, onNext, onBack }:
         <Thermometer className="h-5 w-5 text-blue-600 mr-2" />
         <h2 className="text-xl font-semibold text-gray-900">Select Your Symptoms</h2>
       </div>
-
+{/* eslint-disable-next-line react/no-unescaped-entities */}
       <p className="text-gray-600 mb-6">Please select all symptoms you've experienced in the past 1-2 weeks:</p>
 
       <motion.div className="space-y-3" variants={container} initial="hidden" animate="show">

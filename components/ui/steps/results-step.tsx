@@ -110,6 +110,7 @@ const ResultsStep = ({ result, onReset }: ResultsStepProps) => {
                 <div>
                   <h3 className="font-medium text-blue-900">Important Note</h3>
                   <p className="text-sm text-blue-800">
+                    {/* eslint-disable-next-line react/no-unescaped-entities */}
                     This assessment is based on the symptoms you've provided and is not a definitive diagnosis. Typhoid
                     fever requires proper medical diagnosis through blood tests.
                   </p>

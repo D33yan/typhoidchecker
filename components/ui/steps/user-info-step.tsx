@@ -17,9 +17,10 @@ interface UserInfoStepProps {
 }
 
 const UserInfoStep = ({ userInfo, setUserInfo, onNext, onBack }: UserInfoStepProps) => {
-  const handleChange = (field: keyof UserInfo, value: any) => {
-    setUserInfo({ ...userInfo, [field]: value })
-  }
+  const handleChange = <K extends keyof UserInfo>(field: K, value: UserInfo[K]) => {
+    setUserInfo({ ...userInfo, [field]: value });
+  };
+  
 
   return (
     <div className="py-4">
