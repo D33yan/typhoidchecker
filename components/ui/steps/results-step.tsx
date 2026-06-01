@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, RefreshCw, ExternalLink } from "lucide-react"
+import { AlertCircle, RefreshCw, Printer, ShieldAlert, ArrowRight, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import type { SelectedSymptoms } from "@/components/symptom-checker"
 
 interface ResultsStepProps {
   result: number | null
@@ -11,152 +12,228 @@ interface ResultsStepProps {
 }
 
 const ResultsStep = ({ result, onReset }: ResultsStepProps) => {
-  const getRiskLevel = () => {
-    if (result === null) return { level: "Unknown", color: "gray" }
-    if (result < 30) return { level: "Low", color: "green" }
-    if (result < 60) return { level: "Moderate", color: "yellow" }
-    return { level: "High", color: "red" }
+  const getTriageCategory = () => {
+    if (result === null) return { category: "Unclassified", level: "Unknown", color: "text-slate-500", bg: "bg-slate-50", border: "border-slate-200", badge: "bg-slate-100 text-slate-700" }
+    if (result < 30) {
+      return { 
+        category: "Category I - Low Triage", 
+        level: "Low Risk", 
+        color: "text-emerald-700", 
+        bg: "bg-emerald-50/30", 
+        border: "border-emerald-100",
+        badge: "bg-emerald-50 text-emerald-800 border-emerald-100",
+        desc: "Low probability of active Salmonella enterica serovar Typhi infection. Symptoms may relate to standard systemic viral pathogens. Home care and monitoring are advised."
+      }
+    }
+    if (result < 60) {
+      return { 
+        category: "Category II - Observation Triage", 
+        level: "Moderate Risk", 
+        color: "text-amber-700", 
+        bg: "bg-amber-50/20", 
+        border: "border-amber-100",
+        badge: "bg-amber-50 text-amber-800 border-amber-100",
+        desc: "Moderate clinical correlation with Typhoid Fever. Notable presence of focal symptoms or epidemiological risk. Scheduled clinical evaluation and blood culture cultures are highly recommended."
+      }
+    }
+    return { 
+      category: "Category III - Urgent Clinical Triage", 
+      level: "High Risk", 
+      color: "text-rose-700", 
+      bg: "bg-rose-50/25", 
+      border: "border-rose-100",
+      badge: "bg-rose-50 text-rose-800 border-rose-100",
+      desc: "High clinical and epidemiological correlation with Typhoid Fever. Prompt laboratory diagnostics (blood culture, Widal test) and evaluation by a medical officer for antibiotic therapy are strongly indicated."
+    }
   }
 
-  const risk = getRiskLevel()
+  const triage = getTriageCategory()
+  const score = result !== null ? result : 0
 
-  const recommendations = [
-    "Consult a healthcare provider for proper diagnosis and treatment",
-    "Get a blood culture test to confirm typhoid fever",
-    "Stay hydrated and rest",
-    "Monitor your temperature regularly",
-    "Avoid self-medication, especially antibiotics without prescription",
-  ]
+  // Standard medical recommendations based on triage level
+  const getRecommendations = () => {
+    if (score < 30) {
+      return [
+        "Monitor oral temperature twice daily. Keep a written log.",
+        "Maintain hydration with clean, filtered, or boiled water.",
+        "Rest and consume easily digestible, thoroughly cooked foods.",
+        "Re-evaluate if symptoms persist past 72 hours or body temperature increases."
+      ]
+    }
+    if (score < 60) {
+      return [
+        "Schedule a professional medical consultation within 24-48 hours.",
+        "Ask your physician about obtaining a blood culture or Typhidot test to confirm/rule out Salmonella enterica.",
+        "Strictly avoid self-medicating with broad-spectrum antibiotics, as this can mask bacterial cultures and delay correct diagnosis.",
+        "Ensure all drinking water is vigorously boiled and practice meticulous hand hygiene to prevent potential transmission."
+      ]
+    }
+    return [
+      "Consult a healthcare professional or visit a diagnostic clinic immediately for professional assessment.",
+      "Obtain a blood culture or stool culture test. A blood culture is the diagnostic gold standard for typhoid fever.",
+      "Discuss appropriate prescription antimicrobial therapy (e.g., fluoroquinolones, cephalosporins, or azithromycin) with a doctor.",
+      "Isolate food preparation tasks and utilize separate utensils. Practice extreme hygiene to protect household members from secondary infection."
+    ]
+  }
+
+  const recommendations = getRecommendations()
+
+  const handlePrint = () => {
+    if (typeof window !== "undefined") {
+      window.print()
+    }
+  }
 
   return (
-    <div className="py-6">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <h2 className="text-xl font-semibold mb-6 text-center">Your Typhoid Risk Assessment</h2>
+    <div className="py-2 max-w-2xl mx-auto">
+      {/* Dynamic CSS block to handle print layouts */}
+      <style jsx global>{`
+        @media print {
+          body {
+            background: white !important;
+            color: black !important;
+            font-size: 12px !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          .print-card {
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: none !important;
+            padding: 20px !important;
+            margin: 0 !important;
+          }
+          .print-header {
+            display: block !important;
+            border-bottom: 2px solid #0f172a !important;
+            padding-bottom: 10px !important;
+            margin-bottom: 20px !important;
+          }
+          .print-triage-gauge {
+            border: 1px solid #cbd5e1 !important;
+            background: #f8fafc !important;
+            padding: 10px !important;
+          }
+        }
+      `}</style>
 
-        <div className="flex justify-center mb-8">
-          <motion.div
-            className="relative w-48 h-48"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <div className="absolute inset-0 flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="10" />
-                <motion.circle
-                  cx="50"
-                  cy="50"
-                  r="45"
-                  fill="none"
-                  stroke={
-                    risk.color === "green"
-                      ? "#10b981"
-                      : risk.color === "yellow"
-                        ? "#f59e0b"
-                        : risk.color === "red"
-                          ? "#ef4444"
-                          : "#6b7280"
-                  }
-                  strokeWidth="10"
-                  strokeDasharray="282.7"
-                  strokeDashoffset="282.7"
-                  strokeLinecap="round"
-                  initial={{ strokeDashoffset: 282.7 }}
-                  animate={{
-                    strokeDashoffset: 282.7 - (282.7 * (result || 0)) / 100,
-                  }}
-                  transition={{ duration: 1, delay: 0.5 }}
-                />
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                <motion.span
-                  className="text-4xl font-bold"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5, duration: 0.5 }}
-                >
-                  {result}%
-                </motion.span>
-                <motion.span
-                  className={`text-sm font-medium ${
-                    risk.color === "green"
-                      ? "text-green-600"
-                      : risk.color === "yellow"
-                        ? "text-amber-600"
-                        : risk.color === "red"
-                          ? "text-red-600"
-                          : "text-gray-600"
-                  }`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.7, duration: 0.5 }}
-                >
-                  {risk.level} Risk
-                </motion.span>
-              </div>
-            </div>
-          </motion.div>
+      {/* Hidden print header that only shows when the user prints */}
+      <div className="hidden print-header text-left">
+        <h1 className="text-xl font-bold uppercase tracking-tight">CLINICAL TRIAGE ASSESSMENT REPORT</h1>
+        <p className="text-[10px] text-slate-500">Document Generated: {new Date().toLocaleDateString()} | Powered by Computational MLP Edge AI</p>
+      </div>
+
+      <div className="print-card space-y-6">
+        {/* Triage Overview Block */}
+        <div className="text-center mb-6">
+          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${triage.badge} mb-3`}>
+            {triage.category}
+          </span>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Diagnostic Probability Report</h2>
+          <p className="text-xs text-slate-400">Assessed Probability Index of Salmonella Enterica serovar Typhi Infection</p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-        >
-          <Card className="mb-6 border-l-4 bg-blue-50 border-blue-500">
-            <CardContent className="p-4">
-              <div className="flex items-start">
-                <AlertCircle className="h-5 w-5 text-blue-600 mr-2 mt-0.5 flex-shrink-0" />
-                <div>
-                  <h3 className="font-medium text-blue-900">Important Note</h3>
-                  <p className="text-sm text-blue-800">
-                    {/* eslint-disable-next-line react/no-unescaped-entities */}
-                    This assessment is based on the symptoms you've provided and is not a definitive diagnosis. Typhoid
-                    fever requires proper medical diagnosis through blood tests.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Matured Linear Risk Gauge */}
+        <div className="p-5 rounded-xl border border-slate-100 bg-slate-50/50 print-triage-gauge space-y-4">
+          <div className="flex justify-between items-center text-xs font-bold text-slate-500">
+            <span>LOW PREVALENCE</span>
+            <span>OBSERVATION</span>
+            <span>URGENT TRIAGE</span>
+          </div>
+          
+          {/* Continuous Risk Bar */}
+          <div className="relative w-full h-3 bg-slate-200 rounded-full overflow-hidden flex">
+            <div className="w-[30%] h-full bg-emerald-500/80" />
+            <div className="w-[30%] h-full bg-amber-500/80" />
+            <div className="w-[40%] h-full bg-rose-500/80" />
+            
+            {/* Pointer Indicator */}
+            <motion.div 
+              className="absolute top-0 bottom-0 w-1.5 bg-slate-900 border border-white shadow-md rounded-full -ml-0.75"
+              initial={{ left: "0%" }}
+              animate={{ left: `${score}%` }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+            />
+          </div>
 
-          <div className="space-y-4 mb-8">
-            <h3 className="font-semibold">Recommendations:</h3>
-            <ul className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div className="text-xs text-slate-400 font-medium">Risk Score: <span className="font-bold text-slate-700">{score}%</span></div>
+            <div className={`text-sm font-black uppercase tracking-wider ${triage.color}`}>{triage.level}</div>
+          </div>
+        </div>
+
+        {/* Triage Clinical Analysis Card */}
+        <div className="border border-slate-100 rounded-xl p-5 space-y-4 bg-white">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Epidemiological & Symptom Profile</h3>
+          
+          <div className="text-xs text-slate-600 leading-relaxed pb-3 border-b border-slate-100">
+            {triage.desc}
+          </div>
+
+          <div className="space-y-3 pt-1">
+            <h4 className="text-xs font-bold text-slate-800">Dynamic Risk Recommendations:</h4>
+            <ul className="space-y-2.5">
               {recommendations.map((rec, index) => (
-                <motion.li
-                  key={index}
-                  className="flex items-start"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.1, duration: 0.3 }}
-                >
-                  <div className="h-5 w-5 rounded-full bg-blue-100 flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                    <span className="text-xs font-medium text-blue-600">{index + 1}</span>
+                <li key={index} className="flex items-start text-xs text-slate-600 leading-relaxed">
+                  <div className="h-5 w-5 rounded bg-teal-50 text-teal-700 border border-teal-100 flex items-center justify-center font-bold text-[10px] mr-2.5 flex-shrink-0 mt-0.5">
+                    {index + 1}
                   </div>
-                  <span className="text-sm">{rec}</span>
-                </motion.li>
+                  <span>{rec}</span>
+                </li>
               ))}
             </ul>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <Button variant="outline" onClick={onReset} className="flex items-center">
+        {/* Red Flag Warning Box (Clinical Safety) */}
+        {score >= 30 && (
+          <Card className="border-rose-200 bg-rose-50/15 border-l-4">
+            <CardContent className="p-4 flex items-start space-x-3">
+              <ShieldAlert className="h-5 w-5 text-rose-600 flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h4 className="text-xs font-bold text-rose-900 uppercase tracking-wider">Urgent Clinical Red Flags</h4>
+                <p className="text-[11px] text-rose-800 leading-relaxed">
+                  If the patient exhibits any of the following severe systemic symptoms, bypass standard outpatient diagnostics and seek immediate emergency department triage:
+                </p>
+                <ul className="list-disc pl-4 text-[10px] text-rose-800 font-medium pt-1 space-y-1">
+                  <li>Severe, localized, or rigid abdominal pain (indicative of intestinal perforation).</li>
+                  <li>Persistent, unmanageable vomiting or severe, bloody diarrhea.</li>
+                  <li>Altered mental status, confusion, extreme lethargy, or delirium ('typhoid state').</li>
+                  <li>High body temperature exceeding 40°C (104°F) that is unresponsive to antipyretics.</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Action Buttons (no-print) */}
+        <div className="no-print flex flex-col sm:flex-row justify-center gap-3.5 pt-4 border-t border-slate-100">
+          <Button variant="outline" onClick={onReset} className="border-slate-200 hover:bg-slate-50 text-slate-600 flex items-center justify-center font-semibold">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Start Over
+            Evaluate New Profile
           </Button>
-          <Button
-            className="bg-blue-600 hover:bg-blue-700"
-            onClick={() => window.open("https://www.who.int/news-room/fact-sheets/detail/typhoid", "_blank")}
+          
+          <Button onClick={handlePrint} className="bg-slate-950 hover:bg-slate-800 text-white font-semibold flex items-center justify-center shadow-sm">
+            <Printer className="mr-2 h-4 w-4" />
+            Print Triage Report
+          </Button>
+
+          <Button 
+            variant="ghost"
+            className="text-teal-700 hover:text-teal-800 hover:bg-teal-50 border border-transparent hover:border-teal-100 flex items-center justify-center font-semibold"
+            onClick={() => typeof window !== "undefined" && window.open("https://www.who.int/news-room/fact-sheets/detail/typhoid", "_blank")}
           >
-            <ExternalLink className="mr-2 h-4 w-4" />
-            Learn More About Typhoid
+            WHO Guidelines <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
           </Button>
         </div>
-      </motion.div>
+      </div>
+
+      <div className="no-print mt-6 text-center text-[10px] text-slate-400 flex items-center justify-center">
+        <AlertCircle className="h-3.5 w-3.5 mr-1.5 text-slate-300" />
+        <span>Report is optimized for standard vertical paper print layouts.</span>
+      </div>
     </div>
   )
 }
 
 export default ResultsStep
-
