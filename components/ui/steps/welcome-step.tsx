@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ShieldAlert, Activity, ClipboardList, BrainCircuit } from "lucide-react"
+import { ShieldAlert, Activity, BrainCircuit } from "lucide-react"
 
 interface WelcomeStepProps {
   onNext: () => void
@@ -19,7 +19,7 @@ const WelcomeStep = ({ onNext }: WelcomeStepProps) => {
       >
         <ShieldAlert className="h-4.5 w-4.5 text-teal-600 flex-shrink-0 mt-0.5" />
         <div>
-          <span className="font-semibold">Local Sandbox Triage Protocol:</span> This assessment runs entirely via client-side Edge AI. Your answers are processed strictly in your browser's local memory and are never transmitted, saved, or uploaded to any server.
+          <span className="font-semibold">Local Sandbox Triage Protocol:</span> This assessment runs entirely via client-side Edge AI. Your answers are processed strictly in your browser&apos;s local memory and are never transmitted, saved, or uploaded to any server.
         </div>
       </motion.div>
 

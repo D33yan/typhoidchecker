@@ -2,9 +2,8 @@
 
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { AlertCircle, RefreshCw, Printer, ShieldAlert, ArrowRight, ExternalLink } from "lucide-react"
+import { AlertCircle, RefreshCw, Printer, ShieldAlert, ExternalLink } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import type { SelectedSymptoms } from "@/components/symptom-checker"
 
 interface ResultsStepProps {
   result: number | null
@@ -198,7 +197,7 @@ const ResultsStep = ({ result, onReset }: ResultsStepProps) => {
                 <ul className="list-disc pl-4 text-[10px] text-rose-800 font-medium pt-1 space-y-1">
                   <li>Severe, localized, or rigid abdominal pain (indicative of intestinal perforation).</li>
                   <li>Persistent, unmanageable vomiting or severe, bloody diarrhea.</li>
-                  <li>Altered mental status, confusion, extreme lethargy, or delirium ('typhoid state').</li>
+                  <li>Altered mental status, confusion, extreme lethargy, or delirium (&apos;typhoid state&apos;).</li>
                   <li>High body temperature exceeding 40°C (104°F) that is unresponsive to antipyretics.</li>
                 </ul>
               </div>

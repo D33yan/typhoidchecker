@@ -43,7 +43,9 @@ const UserInfoStep = ({ userInfo, setUserInfo, onNext, onBack }: UserInfoStepPro
         <div className="space-y-2">
           <div className="flex items-center space-x-1.5">
             <Label htmlFor="age" className="text-sm font-bold text-slate-800">Patient Age</Label>
-            <HelpCircle className="h-3.5 w-3.5 text-slate-400 cursor-help" title="Children under 5 and adults over 65 are statistically prone to severe typhoid complications." />
+            <span className="cursor-help" title="Children under 5 and adults over 65 are statistically prone to severe typhoid complications.">
+              <HelpCircle className="h-3.5 w-3.5 text-slate-400" />
+            </span>
           </div>
           <Input
             id="age"
